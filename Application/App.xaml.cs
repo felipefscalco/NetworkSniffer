@@ -1,10 +1,12 @@
-﻿using NetworkSniffer.ViewModels;
+﻿using Application.ViewModels;
+using NetworkCommon.Helpers;
+using NetworkCommon.Interfaces;
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Unity;
 using System.Windows;
 
-namespace NetworkSniffer
+namespace Application
 {
     public partial class App : PrismApplication
     {
@@ -16,7 +18,7 @@ namespace NetworkSniffer
         }
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            //containerRegistry.Register<interface, implementation>();
+            containerRegistry.Register <INetworkHelper, NetworkHelper>();
         }
 
         protected override Window CreateShell()

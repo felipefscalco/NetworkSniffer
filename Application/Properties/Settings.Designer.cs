@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NetworkSniffer.Properties
+namespace Application.Properties
 {
 
 
