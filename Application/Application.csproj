@@ -91,10 +91,18 @@
     </ApplicationDefinition>
     <Compile Include="Converters\ReverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Handlers\UserIdentityHandler.cs" />
-    <Compile Include="Templates\IPacketTemplate.cs" />
-    <Compile Include="Templates\IPPacketTemplate.cs" />
-    <Compile Include="Templates\IPv4PacketTemplate.cs" />
-    <Compile Include="Templates\IPv6PacketTemplate.cs" />
+    <Compile Include="Templates\Abstractions\IPacketTemplate.cs" />
+    <Compile Include="Templates\Headers\Icmpv6HeaderTemplate.cs" />
+    <Compile Include="Templates\Headers\IgmpHeaderTemplate.cs" />
+    <Compile Include="Templates\Headers\TcpHeaderTemplate.cs" />
+    <Compile Include="Templates\Headers\UdpHeaderTemplate.cs" />
+    <Compile Include="Templates\Packets\IcmpV6PacketTemplate.cs" />
+    <Compile Include="Templates\Packets\IgmpPacketTemplate.cs" />
+    <Compile Include="Templates\Packets\IPPacketTemplate.cs" />
+    <Compile Include="Templates\Headers\IPv4HeaderTemplate.cs" />
+    <Compile Include="Templates\Headers\IPv6HeaderTemplate.cs" />
+    <Compile Include="Templates\Packets\TcpPacketTemplate.cs" />
+    <Compile Include="Templates\Packets\UdpPacketTemplate.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

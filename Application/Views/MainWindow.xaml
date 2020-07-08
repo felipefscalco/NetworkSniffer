@@ -6,7 +6,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:Application.Converters"
-        xmlns:templates="clr-namespace:Application.Templates"
+        xmlns:packetsTemplates="clr-namespace:Application.Templates.Packets"
+        xmlns:headersTemplates="clr-namespace:Application.Templates.Headers"
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="Network Sniffer" 
@@ -183,7 +184,7 @@
         <TreeView Grid.Row="1" ItemsSource ="{Binding PacketTemplates}" Margin="3">
 
             <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type templates:IPPacketTemplate}" ItemsSource="{Binding Path=PacketContent}">
+                <HierarchicalDataTemplate DataType="{x:Type packetsTemplates:IPPacketTemplate}" ItemsSource="{Binding Path=PacketContent}">
                     <DockPanel>
                         <TextBlock Text="IP Packet: " FontWeight="DemiBold"></TextBlock>
                         <TextBlock Text="{Binding SourceIp}"></TextBlock>
@@ -194,7 +195,25 @@
                     </DockPanel>
                 </HierarchicalDataTemplate>
                 
-                <DataTemplate DataType="{x:Type templates:IPv4PacketTemplate}">
+                <HierarchicalDataTemplate DataType="{x:Type packetsTemplates:TcpPacketTemplate}" ItemsSource="{Binding Path=PacketContent}">
+                    <DockPanel>                        
+                    <TextBlock Text="TCP Packet" FontWeight="DemiBold"></TextBlock>
+                    </DockPanel>
+                </HierarchicalDataTemplate>
+                
+                <HierarchicalDataTemplate DataType="{x:Type packetsTemplates:UdpPacketTemplate}" ItemsSource="{Binding Path=PacketContent}">
+                    <TextBlock Text="UDP Packet" FontWeight="DemiBold"></TextBlock>
+                </HierarchicalDataTemplate>
+                
+                <HierarchicalDataTemplate DataType="{x:Type packetsTemplates:IcmpV6PacketTemplate}" ItemsSource="{Binding Path=PacketContent}">
+                    <TextBlock Text="ICMP Packet" FontWeight="DemiBold"></TextBlock>
+                </HierarchicalDataTemplate>
+                
+                <HierarchicalDataTemplate DataType="{x:Type packetsTemplates:IgmpPacketTemplate}" ItemsSource="{Binding Path=PacketContent}">
+                    <TextBlock Text="IGMP Packet" FontWeight="DemiBold"></TextBlock>
+                </HierarchicalDataTemplate>
+                
+                <DataTemplate DataType="{x:Type headersTemplates:IPv4HeaderTemplate}">
                     <StackPanel>
                         <DockPanel>
                             <TextBlock Text="   Version: "></TextBlock>
@@ -247,7 +266,7 @@
                     </StackPanel>
                 </DataTemplate>
                 
-                <DataTemplate DataType="{x:Type templates:IPv6PacketTemplate}">
+                <DataTemplate DataType="{x:Type headersTemplates:IPv6HeaderTemplate}">
                     <StackPanel>
                         <DockPanel>
                             <TextBlock Text="   Version: "></TextBlock>
@@ -290,7 +309,112 @@
                             <TextBlock Text="{Binding DestinationIp}"></TextBlock>
                         </DockPanel>
                     </StackPanel>
+                </DataTemplate>                      
+                
+                <DataTemplate DataType="{x:Type headersTemplates:TcpHeaderTemplate}">
+                    <StackPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Source Port: "></TextBlock>
+                            <TextBlock Text="{Binding SourcePort}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Destination Port: "></TextBlock>
+                            <TextBlock Text="{Binding DestinationPort}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Sequence Number: "></TextBlock>
+                            <TextBlock Text="{Binding SequenceNumber}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Acknowledgment Number: "></TextBlock>
+                            <TextBlock Text="{Binding AcknowledgmentNumber }"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Data Offset: "></TextBlock>
+                            <TextBlock Text="{Binding DataOffset}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Flags: "></TextBlock>
+                            <TextBlock Text="{Binding Flags}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Window Size: "></TextBlock>
+                            <TextBlock Text="{Binding WindowSize}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Checksum: "></TextBlock>
+                            <TextBlock Text="{Binding Checksum}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   UrgentPointer: "></TextBlock>
+                            <TextBlock Text="{Binding UrgentPointer}"></TextBlock>
+                        </DockPanel>
+                    </StackPanel>
                 </DataTemplate>
+
+                <DataTemplate DataType="{x:Type headersTemplates:UdpHeaderTemplate}">
+                    <StackPanel>
+                       <DockPanel>
+                            <TextBlock Text="   Source Port: "></TextBlock>
+                            <TextBlock Text="{Binding SourcePort}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Destination Port: "></TextBlock>
+                            <TextBlock Text="{Binding DestinationPort}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Length: "></TextBlock>
+                            <TextBlock Text="{Binding Length}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Checksum: "></TextBlock>
+                            <TextBlock Text="{Binding Checksum}"></TextBlock>
+                        </DockPanel>
+                    </StackPanel>
+                </DataTemplate>
+                
+                <DataTemplate DataType="{x:Type headersTemplates:Icmpv6HeaderTemplate}">
+                    <StackPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Type: "></TextBlock>
+                            <TextBlock Text="{Binding ICMPType}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Code: "></TextBlock>
+                            <TextBlock Text="{Binding Code}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Checksum: "></TextBlock>
+                            <TextBlock Text="{Binding Checksum}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Rest of Header: "></TextBlock>
+                            <TextBlock Text="{Binding Lenght}"></TextBlock>
+                        </DockPanel>
+                    </StackPanel>
+                </DataTemplate>
+                
+                <DataTemplate DataType="{x:Type headersTemplates:IgmpHeaderTemplate}">
+                    <StackPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Type: "></TextBlock>
+                            <TextBlock Text="{Binding Type}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   MaxResponseTime: "></TextBlock>
+                            <TextBlock Text="{Binding MaxResponseTime}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   Checksum: "></TextBlock>
+                            <TextBlock Text="{Binding Checksum}"></TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="   GroupAddress: "></TextBlock>
+                            <TextBlock Text="{Binding GroupAddress}"></TextBlock>
+                        </DockPanel>
+                    </StackPanel>
+                </DataTemplate>
+
             </TreeView.Resources>
         </TreeView>
 

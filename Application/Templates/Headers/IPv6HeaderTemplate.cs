@@ -1,12 +1,14 @@
-﻿using PacketDotNet;
+﻿using Application.Templates.Abstractions;
+using Application.Templates.Packets;
+using PacketDotNet;
 using System.Collections.ObjectModel;
 using Packet = NetworkCommon.Models.Packet;
 
-namespace Application.Templates
+namespace Application.Templates.Headers
 {
-    public class IPv6PacketTemplate : IPacketTemplate
+    public class IPv6HeaderTemplate : IPacketTemplate
     {
-        public ObservableCollection<IPacketTemplate> PacketContent { get; set; }
+        public ObservableCollection<IPacketTemplate> PacketContent { get; }
         public string SourceIp { get; set; }
         public string DestinationIp { get; set; }
         public string Protocol { get; set; }
@@ -18,8 +20,10 @@ namespace Application.Templates
         public string TrafficClass { get; set; }
         public string PayloadLength { get; set; }
 
-        public IPv6PacketTemplate(Packet packet)
+        public IPv6HeaderTemplate(Packet packet)
         {
+            PacketContent = new ObservableCollection<IPacketTemplate>();
+
             SourceIp = packet.SourceIp;
             DestinationIp = packet.DestinationIP;
             Protocol = packet.Protocol.ToUpperInvariant();
@@ -47,22 +51,25 @@ namespace Application.Templates
                 case ProtocolType.Tcp:
                     var tcpPacket = ipPacket.Extract<TcpPacket>();
                     if (tcpPacket != null)
-                    {
-                        //DestinationPort = tcpPacket.DestinationPort.ToString();
-                        //SourcePort = tcpPacket.SourcePort.ToString();
-                    }
+                        PacketContent.Add(new TcpPacketTemplate(tcpPacket));
                     break;
 
                 case ProtocolType.Udp:
                     var udpPacket = ipPacket.Extract<UdpPacket>();
                     if (udpPacket != null)
-                    {
-                        //DestinationPort = udpPacket.DestinationPort.ToString();
-                        //SourcePort = udpPacket.SourcePort.ToString();
-                    }
+                        PacketContent.Add(new UdpPacketTemplate(udpPacket));
                     break;
 
                 case ProtocolType.IcmpV6:
+                    var icmpv6Packet = ipPacket.Extract<IcmpV6Packet>();
+                    if (icmpv6Packet != null)
+                        PacketContent.Add(new IcmpV6PacketTemplate(icmpv6Packet));
+                    break;
+
+                case ProtocolType.Igmp:
+                    var igmpPacket = ipPacket.Extract<IgmpV2Packet>();
+                    if (igmpPacket != null)
+                        PacketContent.Add(new IgmpPacketTemplate(igmpPacket));
                     break;
 
                 default:

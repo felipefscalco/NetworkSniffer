@@ -1,4 +1,5 @@
-﻿using Application.Templates;
+﻿using Application.Templates.Abstractions;
+using Application.Templates.Packets;
 using NetworkCommon;
 using NetworkCommon.Interfaces;
 using NetworkCommon.Messages;
@@ -109,7 +110,6 @@ namespace Application.ViewModels
         public DelegateCommand ApplyFilterCommand { get; private set; }
         public DelegateCommand ResetFilterCommand { get; private set; }
         public DelegateCommand ClearPacketListCommand { get; private set; }
-
 
         public MainWindowViewModel(IEventAggregator eventAggregator, INetworkHelper networkHelper)
         {
@@ -226,7 +226,7 @@ namespace Application.ViewModels
                    PacketList.Add(packet);
         }
 
-        private IPacketTemplate GenerateTemplate(Packet selectedPacket)
+        private IPPacketTemplate GenerateTemplate(Packet selectedPacket)
         {
             return new IPPacketTemplate(selectedPacket);
         }

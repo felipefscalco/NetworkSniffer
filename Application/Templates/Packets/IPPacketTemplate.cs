@@ -1,14 +1,17 @@
-﻿using NetworkCommon.Models;
+﻿using Application.Templates.Abstractions;
+using Application.Templates.Headers;
+using NetworkCommon.Models;
 using System.Collections.ObjectModel;
 
-namespace Application.Templates
+namespace Application.Templates.Packets
 {
     public class IPPacketTemplate : IPacketTemplate
     {
-        public ObservableCollection<IPacketTemplate> PacketContent { get; set; }
+        public ObservableCollection<IPacketTemplate> PacketContent { get; }
         public string SourceIp { get; set; }
         public string DestinationIp { get; set; }
         public string Protocol { get; set; }
+
 
         public IPPacketTemplate(Packet packet)
         {
@@ -27,11 +30,15 @@ namespace Application.Templates
             switch (ipPacket.Version)
             {
                 case PacketDotNet.IPVersion.IPv4:
-                    PacketContent.Add(new IPv4PacketTemplate(packet));
+                    var ipv4Header = new IPv4HeaderTemplate(packet);
+                    PacketContent.Add(ipv4Header);
+                    PacketContent.AddRange(ipv4Header.PacketContent);
                     break;
 
                 case PacketDotNet.IPVersion.IPv6:
-                    PacketContent.Add(new IPv6PacketTemplate(packet));
+                    var ipv6Header = new IPv6HeaderTemplate(packet);
+                    PacketContent.Add(ipv6Header);
+                    PacketContent.AddRange(ipv6Header.PacketContent);
                     break;
 
                 default:
