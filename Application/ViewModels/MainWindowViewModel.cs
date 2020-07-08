@@ -1,12 +1,13 @@
 ﻿using Application.Templates.Abstractions;
 using Application.Templates.Packets;
+using Application.Validations;
 using NetworkCommon;
 using NetworkCommon.Interfaces;
 using NetworkCommon.Messages;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
-using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Data;
@@ -16,21 +17,26 @@ namespace Application.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        private readonly IEventAggregator _eventAggregator;
-        private readonly INetworkHelper _networkHelper;
+        private readonly IEventAggregator EventAggregator;
+        private readonly INetworkHelper NetworkHelper;
+        private readonly FilterValidation FilterValidator;
         private ObservableCollection<Packet> _packetList;
+        private List<Packet> _backupPacketList;
         private ObservableCollection<NetworkInterface> _avaliableInterfaces;
+        private ObservableCollection<IPacketTemplate> _packetTemplates;
         private NetworkInterface _selectedInterface;
         private Packet _selectedPacket;
-        private ObservableCollection<IPacketTemplate> _packetTemplates;
         private bool _isStartCaptureEnabled;
         private bool _hasCaptureStarted;
         private bool _isFilterEnabled;
+        private bool _isFilterActive;
         private bool _isResetEnabled;
         private bool _isClearEnabled;
+        private bool _isComboBoxEnabled;
         private string _filterProperty;
         private string _filterText;
         private object _packetLock = new object();
+        private object _filteredPacketLock = new object();
 
         public ObservableCollection<Packet> PacketList
         {
@@ -73,23 +79,29 @@ namespace Application.ViewModels
             get => _hasCaptureStarted;
             set => SetProperty(ref _hasCaptureStarted, value);
         }
-        
+
         public bool IsFilterEnabled
         {
             get => _isFilterEnabled;
             set => SetProperty(ref _isFilterEnabled, value);
         }
-        
+
         public bool IsResetEnabled
         {
             get => _isResetEnabled;
             set => SetProperty(ref _isResetEnabled, value);
         }
-        
+
         public bool IsClearEnabled
         {
             get => _isClearEnabled;
             set => SetProperty(ref _isClearEnabled, value);
+        }
+
+        public bool IsComboBoxEnabled
+        {
+            get => _isComboBoxEnabled;
+            set => SetProperty(ref _isComboBoxEnabled, value);
         }
 
         public string FilterProperty
@@ -98,7 +110,7 @@ namespace Application.ViewModels
             set => SetProperty(ref _filterProperty, value);
         }
 
-         public string FilterText
+        public string FilterText
         {
             get => _filterText;
             set => SetProperty(ref _filterText, value);
@@ -113,8 +125,9 @@ namespace Application.ViewModels
 
         public MainWindowViewModel(IEventAggregator eventAggregator, INetworkHelper networkHelper)
         {
-            _eventAggregator = eventAggregator;
-            _networkHelper = networkHelper;
+            EventAggregator = eventAggregator;
+            NetworkHelper = networkHelper;
+            FilterValidator = new FilterValidation();
 
             CreateCommands();
 
@@ -135,19 +148,23 @@ namespace Application.ViewModels
         private void InitializeProperties()
         {
             FilterProperty = "White";
+            
+            _backupPacketList = new List<Packet>();
+            BindingOperations.EnableCollectionSynchronization(_backupPacketList, _filteredPacketLock);
+
             PacketList = new ObservableCollection<Packet>();
             BindingOperations.EnableCollectionSynchronization(PacketList, _packetLock);
 
             PacketTemplates = new ObservableCollection<IPacketTemplate>();
 
-            AvaliableInterfaces = _networkHelper.GetAvaliableInterfaces();
+            AvaliableInterfaces = NetworkHelper.GetAvaliableInterfaces();
             if (AvaliableInterfaces.Count > 0)
                 SelectedInterface = AvaliableInterfaces.First();
         }
 
         private void SubscribeEvents()
         {
-            _eventAggregator.GetEvent<SendPacketMessage>().Subscribe((packet) => AddPacket(packet));
+            EventAggregator.GetEvent<SendPacketMessage>().Subscribe((packet) => AddPacket(packet));
         }
 
         private void StartCapture()
@@ -174,43 +191,45 @@ namespace Application.ViewModels
         }
 
         private void ApplyFilter()
-        {            
+        {
             if (string.IsNullOrEmpty(FilterText))
                 return;
 
             IsResetEnabled = true;
 
-            if (IsFilterValid())
+            if (FilterValidator.IsFilterValid(FilterText))
+            {
+                _isFilterActive = true;
                 FilterProperty = "LightGreen";
+                PacketList.Clear();
+
+                foreach (var item in FilterValidator.ProtocolFilters)
+                {
+                    PacketList.AddRange(_backupPacketList.Where(p => p.Protocol.Equals(item.ToString())));
+                }
+            }
             else
+            {
+                _isFilterActive = false;
                 FilterProperty = "LightSalmon";
-        }       
+            }
+        }
 
         private void ResetFilter()
         {
+            _isFilterActive = false;
             IsResetEnabled = false;
             FilterText = string.Empty;
             FilterProperty = "White";
-        }     
 
-        private bool IsFilterValid()
-        {
-//            •	protocol filter: “protocol name” (e.g. TCP)
-            //•	source IP address filter: “src=xxx.xxx.xxx.xxx” 
-            //•	destination IP address filter: “dest=xxx.xxx.xxx.xxx” 
-            //•	source port filter: “sp=port_number”
-            //•	destination port filter: “dp=port_number”
-            //•	length filter: “length>100”, “length<100”
-
-            if (FilterText.Equals("protocol udp", StringComparison.InvariantCultureIgnoreCase) || FilterText.Equals("protocol tcp", StringComparison.InvariantCultureIgnoreCase))
-                return true;
-
-            return false;
-        }   
+            PacketList.Clear();
+            PacketList.AddRange(_backupPacketList);
+        }       
 
         private void ClearPacketList()
         {
             PacketList.Clear();
+            _backupPacketList.Clear();
             SelectedPacket = null;
         }
 
@@ -222,8 +241,19 @@ namespace Application.ViewModels
 
         private void AddPacket(Packet packet)
         {
-            lock (PacketList)
-                   PacketList.Add(packet);
+            if (_isFilterActive)
+            {
+                if(FilterValidator.ShouldAddPackageToList(packet))
+                    PacketList.Add(packet);
+            }
+            else
+            {
+                lock (PacketList)
+                    PacketList.Add(packet);
+            }
+
+            lock (_backupPacketList)
+                _backupPacketList.Add(packet);
         }
 
         private IPPacketTemplate GenerateTemplate(Packet selectedPacket)
