@@ -145,8 +145,10 @@ namespace Application.ViewModels
             ResetFilterCommand = new DelegateCommand(() => ResetFilter());
             ClearPacketListCommand = new DelegateCommand(() => ClearPacketList());
         }
+
         private void InitializeProperties()
         {
+            IsComboBoxEnabled = true;
             FilterProperty = "White";
             
             _backupPacketList = new List<Packet>();
@@ -169,6 +171,7 @@ namespace Application.ViewModels
 
         private void StartCapture()
         {
+            IsComboBoxEnabled = false;
             HasCaptureStarted = true;
             IsFilterEnabled = true;
             IsClearEnabled = true;
@@ -178,6 +181,7 @@ namespace Application.ViewModels
 
         private void StopCapture()
         {
+            IsComboBoxEnabled = true;
             HasCaptureStarted = false;
             SelectedInterface.StopCapture();
         }

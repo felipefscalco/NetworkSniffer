@@ -23,22 +23,22 @@ namespace Application.Validations
             var filters = filterText.Split(stringSeparators, StringSplitOptions.None);
             foreach (var filter in filters)
             {
-                if (filter.Equals("protocol udp", StringComparison.InvariantCultureIgnoreCase))
+                if (filter.Equals("protocol == udp", StringComparison.InvariantCultureIgnoreCase))
                 {
                     ProtocolFilters.Add(ProtocolFilter.UDP);
                     isValid = true;
                 }
-                else if (filter.Equals("protocol tcp", StringComparison.InvariantCultureIgnoreCase))
+                else if (filter.Equals("protocol == tcp", StringComparison.InvariantCultureIgnoreCase))
                 {
                     ProtocolFilters.Add(ProtocolFilter.TCP);
                     isValid = true;
                 }
-                else if (filter.Equals("protocol icmpv6", StringComparison.InvariantCultureIgnoreCase))
+                else if (filter.Equals("protocol == icmpv6", StringComparison.InvariantCultureIgnoreCase))
                 {
                     ProtocolFilters.Add(ProtocolFilter.ICMPV6);
                     isValid = true;
                 }
-                else if (filter.Equals("protocol igmp", StringComparison.InvariantCultureIgnoreCase))
+                else if (filter.Equals("protocol == igmp", StringComparison.InvariantCultureIgnoreCase))
                 {
                     ProtocolFilters.Add(ProtocolFilter.IGMP);
                     isValid = true;
